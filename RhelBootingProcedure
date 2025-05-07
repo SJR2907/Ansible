@@ -1,0 +1,104 @@
+🔥 RHEL 9.5 Booting Procedure – Step-by-Step (with Interview Points)
+RHEL 9.5 (like other modern Red Hat-based systems) uses a UEFI + GRUB2 + systemd boot architecture.
+
+✅ 1. BIOS/UEFI Initialization
+On power-on, the system runs POST (Power-On Self Test).
+
+Then the BIOS or UEFI firmware locates the bootloader from the boot device (like HDD/SSD).
+
+In UEFI systems, this typically means loading /EFI/redhat/grubx64.efi.
+
+🔹 Interview Tip: Know the difference between BIOS and UEFI (UEFI is modern, supports larger disks, secure boot, etc.)
+
+✅ 2. Bootloader Stage – GRUB2
+The bootloader used is GRUB2 (GRand Unified Bootloader v2).
+
+It loads the GRUB config file: /boot/grub2/grub.cfg (BIOS) or /boot/efi/EFI/redhat/grub.cfg (UEFI).
+
+Shows the boot menu (if multiple kernels are installed).
+
+Loads:
+
+The selected Linux kernel (e.g., /boot/vmlinuz-...)
+
+The initramfs/initrd image (e.g., /boot/initramfs-...img)
+
+🔹 Interview Tip: GRUB loads both kernel and initramfs. The initramfs is a minimal root filesystem that contains drivers and scripts to mount the real root filesystem.
+
+✅ 3. Kernel Initialization
+The kernel is loaded into memory and starts executing.
+
+Initializes:
+
+Device drivers (from initramfs)
+
+Mounts the root filesystem from /etc/fstab (after initramfs finishes)
+
+Starts /sbin/init, which is now a symbolic link to systemd
+
+🔹 Interview Tip: Kernel passes control to systemd, not to init or upstart in RHEL 9.x.
+
+✅ 4. initramfs / initrd
+initramfs = initial RAM filesystem.
+
+Temporarily mounted as root to:
+
+Detect storage devices
+
+Load LVM, RAID, or encrypted volume drivers
+
+Mount the actual root filesystem
+
+🔹 Interview Tip: dracut is the tool used to generate initramfs in RHEL.
+
+✅ 5. systemd Initialization
+The first real user-space program is systemd (PID 1).
+
+It reads its configuration from /etc/systemd/system/default.target (usually a symlink to graphical.target or multi-user.target)
+
+Loads and executes:
+
+Target units (e.g., multi-user.target)
+
+Service units (e.g., network.service, sshd.service)
+
+Mount units, socket units, etc.
+
+🔹 Interview Tip: Explain units in systemd – .service, .target, .socket, etc.
+
+✅ 6. Target-Based Boot Sequence (Systemd Targets)
+Some important systemd targets during boot:
+
+local-fs.target – Mounts local filesystems
+
+network.target – Starts network
+
+multi-user.target – Text-based mode (non-GUI)
+
+graphical.target – GUI mode (depends on multi-user.target)
+
+default.target – The default boot target
+
+🔹 Interview Tip: You can change boot level (like old runlevels) using systemctl set-default multi-user.target.
+
+✅ 7. Login Prompt (TTY or GUI)
+After reaching the target:
+
+TTY: agetty provides login prompts on /dev/ttyX
+
+GUI: Display Manager (like gdm, lightdm) starts GUI login
+
+🧠 Summary Flow (Quick View):
+BIOS/UEFI
+   ↓
+GRUB2 (bootloader)
+   ↓
+Linux Kernel (vmlinuz) + initramfs
+   ↓
+initramfs → mount real root fs
+   ↓
+systemd (PID 1)
+   ↓
+Targets → Services
+   ↓
+Login (TTY or GUI)

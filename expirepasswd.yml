@@ -1,0 +1,15 @@
+---
+- name: Create user with expiry
+  hosts: all
+  become: yes
+  vars:
+    new_user: tempuser
+    expiry_date: "2025-05-31"
+
+  tasks:
+    - name: Add user
+      ansible.builtin.user:
+        name: "{{ new_user }}"
+        shell: /bin/bash
+        state: present
+        expires: "{{ (expiry_date | to_datetime('%Y-%m-%d')).timestamp() | int }}"

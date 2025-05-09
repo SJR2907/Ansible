@@ -18,3 +18,12 @@ for file in /etc/*
 do 
  echo "File: $file"
 done
+
+Eg:3 Find and Alert Large Files (>100MB)
+
+for file in /var/log/*
+do 
+ if [-f "$file"] && [$(du -m "$file" | cut -f1) -gt 100]; then
+   echo "Large file found: $file"
+fi
+done 

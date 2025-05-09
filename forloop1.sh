@@ -11,3 +11,10 @@ done
  do 
   echo "Number: $i" 
   done 
+
+Example 2: List all Files in Directory
+
+for file in /etc/*
+do 
+ echo "File: $file"
+done

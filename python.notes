@@ -1,0 +1,13 @@
+a=int(input("Enter a number: "))
+b=int(input("Enter a number: "))
+print(a+b)
+print(a-b)
+print(a*b)
+print(a/b)
+
+# print() is used to display the output on the console  
+# input() is used to read the input form the console 
+# type() is used to check the type of the data of a variable 
+# conversion functions are used to convert from one type of data to another type 
+# eg: int() is used to convert from anytype to integer type is nothing but decimal format 
+#      float() is used to convert form onetype to folating point number like "5.6" to 5.6

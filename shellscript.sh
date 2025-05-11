@@ -37,4 +37,37 @@ by using csh command we can access this shell
  developed by Paul 
  By using zsh command we can access this shell 
 
+ Note: The most commonly used shell in linux environment is BASH. It is more powerful than remaining shells.
+
+ How to check default shell in our system. 
+ # echo $0 
+   -bash 
+ # echo $SHELL 
+   /bin/bash 
+we can also check the default shell information inside /etc/passwd file  
+
+ cat /etc/passwd 
+ [root@client ~]# cat /etc/passwd | grep -i tempuser
+tempuser:x:1013:1013::/home/tempuser:/bin/bash
+
+How to check all available shells in our system 
+/etc/shells file contains all available shells information  
+
+# cat /etc/shells 
+ # /etc/shells: valid login shells 
+ [tempuser@client ~]$ cat /etc/shells
+/bin/sh
+/bin/bash
+/usr/bin/sh
+/usr/bin/bash
+
+How to switch to other shells?
+Based on our requirement we can switch form one shell to another shell.
+
+what is shell script?
+
+A sequence of commands saved to a file and this file is nothing but shell script. 
+Inside shell script, we can also use programming features like conditional statements, loops, functions etc.
+Hence we can write scripts very easily for complex requrirements also  
+Best suitable for automation tasks. 
 

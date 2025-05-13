@@ -115,4 +115,13 @@ else
   echo "exist $file"
 fi
 
+eg: Check if a service is running OR if the port is open?
+#!/bin/bash 
+if systemctl is-active --quiet nginx || netstat -tulpn | grep ':80';
+then
+  echo "Nginx is running or port 80 is open"
+else
+  echo "Nginx is not running and port is closed"
+fi
+
 

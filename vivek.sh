@@ -82,5 +82,37 @@ else
   echo "$b both numbers are not equal $a"
 fi
 
+ Combined Logic (AND & OR) in if statements
+ User Input validation:
+ #!/bin/bash 
+ read -p "Enter number between 1 to 10: num 
+ if [[ $num -ge 1 && $num -le 10 ]];
+ then
+   echo  "valid number"
+ else
+   echo "Invalid number"
+fi
+
+OR Condition:
+#!/bin/bash 
+read -p "Enter a value:" a
+read -p "Enter b value:" b
+name=sai
+if [[ $a -gt $b || $name == "SJR" ]];
+then
+  echo "$a is greater than $b"
+else 
+  echo "string is not matched"
+fi
+
+! not shell script:
+#!/bin/bash
+file=arun.sh 
+if [ ! -f $file ];
+then
+  echo "$file does not exist"
+else 
+  echo "exist $file"
+fi
 
 

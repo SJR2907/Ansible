@@ -11,3 +11,9 @@ then
 else
   echo "Greater Number is:$b"
 fi
+
+what is meant by ping 
+# ping -c 5 google.com > /dev/null 2>&1 
+> /dev/null: hide the output 
+2>: redirect standard output
+&1: redirect standard error 

@@ -26,3 +26,4 @@
         line: "{{ username }} ALL=(ALL) NOPASSWD: ALL"
         validate: 'visudo -cf %s'
 💡 Real-world: Used for infrastructure onboarding/offboarding.
+

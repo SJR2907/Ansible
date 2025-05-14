@@ -36,3 +36,4 @@ Operator	Description
 !=	strings are not equal
 -f	file exists and is regular
 -d	directory exists
+

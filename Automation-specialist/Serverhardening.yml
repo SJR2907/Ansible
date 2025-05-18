@@ -1,0 +1,116 @@
+- name: Harden RHEL 9 Server
+  hosts: all
+  become: yes
+
+  vars:
+    ssh_port: 22
+    allowed_users: ['ansible', 'admin']
+
+  tasks:
+
+    ### 1. Update system
+    - name: Ensure system is up-to-date
+      dnf:
+        name: '*'
+        state: latest
+        update_cache: yes
+
+    ### 2. Disable unnecessary services
+    - name: Disable and stop unnecessary services
+      service:
+        name: "{{ item }}"
+        enabled: false
+        state: stopped
+      loop:
+        - avahi-daemon
+        - cups
+        - nfs-server
+        - rpcbind
+
+    ### 3. Configure SSH securely
+    - name: Secure SSH configuration
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: "{{ item.regexp }}"
+        line: "{{ item.line }}"
+        state: present
+        create: yes
+        backup: yes
+      loop:
+        - { regexp: '^#?Port ', line: "Port {{ ssh_port }}" }
+        - { regexp: '^#?PermitRootLogin ', line: 'PermitRootLogin no' }
+        - { regexp: '^#?PasswordAuthentication ', line: 'PasswordAuthentication no' }
+        - { regexp: '^#?X11Forwarding ', line: 'X11Forwarding no' }
+        - { regexp: '^#?MaxAuthTries ', line: 'MaxAuthTries 3' }
+        - { regexp: '^#?LoginGraceTime ', line: 'LoginGraceTime 30' }
+
+    - name: Restart SSHD
+      service:
+        name: sshd
+        state: restarted
+
+    ### 4. Restrict SSH access to allowed users
+    - name: Restrict SSH to allowed users
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^AllowUsers'
+        line: "AllowUsers {{ allowed_users | join(' ') }}"
+        create: yes
+
+    ### 5. Set password policies
+    - name: Set password aging policy
+      lineinfile:
+        path: /etc/login.defs
+        regexp: "{{ item.regexp }}"
+        line: "{{ item.line }}"
+      loop:
+        - { regexp: '^PASS_MAX_DAYS', line: 'PASS_MAX_DAYS 90' }
+        - { regexp: '^PASS_MIN_DAYS', line: 'PASS_MIN_DAYS 7' }
+        - { regexp: '^PASS_WARN_AGE', line: 'PASS_WARN_AGE 14' }
+
+    ### 6. Enable and configure firewalld
+    - name: Ensure firewalld is running
+      service:
+        name: firewalld
+        state: started
+        enabled: yes
+
+    - name: Allow essential services in firewall
+      firewalld:
+        service: "{{ item }}"
+        permanent: true
+        state: enabled
+        immediate: yes
+      loop:
+        - ssh
+        - http
+        - https
+
+    ### 7. Enable auditing
+    - name: Install auditd
+      dnf:
+        name: audit
+        state: present
+
+    - name: Enable and start auditd
+      service:
+        name: auditd
+        state: started
+        enabled: yes
+
+    ### 8. Set permissions on /etc/shadow
+    - name: Set secure permissions for /etc/shadow
+      file:
+        path: /etc/shadow
+        owner: root
+        group: root
+        mode: '0000'
+
+    ### 9. Set umask system-wide
+    - name: Set system-wide umask
+      lineinfile:
+        path: /etc/profile
+        regexp: '^umask '
+        line: 'umask 027'
+        create: yes
+

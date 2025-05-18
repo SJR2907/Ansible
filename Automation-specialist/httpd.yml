@@ -1,0 +1,24 @@
+---
+- name: Install and configure Apache HTTPD on Linux servers
+  hosts: webservers  # Replace with your inventory group or use 'all'
+  become: true         # Required for installing packages and managing services
+
+  tasks:
+    - name: Install httpd package
+      yum:
+        name: httpd
+        state: present
+
+    - name: Start and enable httpd service
+      service:
+        name: httpd
+        state: started
+        enabled: yes
+
+    - name: Create a custom index.html page
+      copy:
+        dest: /var/www/html/index.html
+        content: "<h1>Welcome to Apache Server managed by Ansible!</h1>"
+        owner: apache
+        group: apache
+        mode: '0644'

@@ -1,0 +1,73 @@
+- name: Install and Configure MySQL Server on RHEL 9
+  hosts: webservers
+  become: yes
+
+  vars:
+    mysql_root_password: "Arun_404!"  # 🔒 Change this
+
+  tasks:
+
+    - name: Install MySQL server package
+      dnf:
+        name: mysql
+        state: present
+
+    - name: Ensure MySQL service is started and enabled
+      service:
+        name: mysqld
+        state: started
+        enabled: yes
+
+    - name: Get temporary MySQL root password
+      shell: grep 'temporary password' /var/log/mysqld.log | awk '{print $NF}'
+      register: mysql_temp_pass
+      changed_when: false
+      failed_when: mysql_temp_pass.rc != 0
+
+    - name: Install MySQL Python client (required for Ansible modules)
+      dnf:
+        name: python3-PyMySQL
+        state: present
+
+    - name: Change MySQL root password
+      shell: >
+        mysql --connect-expired-password -uroot -p'{{ mysql_temp_pass.stdout }}'
+        -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '{{ mysql_root_password }}';"
+      args:
+        executable: /bin/bash
+      register: password_change
+      failed_when: "'ERROR' in password_change.stderr"
+
+    - name: Remove anonymous MySQL users
+      mysql_user:
+        name: ''
+        host_all: yes
+        state: absent
+        login_user: root
+        login_password: "{{ mysql_root_password }}"
+
+    - name: Remove test database
+      mysql_db:
+        name: test
+        state: absent
+        login_user: root
+        login_password: "{{ mysql_root_password }}"
+
+    - name: Disallow remote root login
+      mysql_user:
+        name: root
+        host: "{{ item }}"
+        state: absent
+        login_user: root
+        login_password: "{{ mysql_root_password }}"
+      loop:
+        - "%"
+        - "::1"
+
+    - name: Flush MySQL privileges
+      mysql_user:
+        name: root
+        host: localhost
+        login_user: root
+        login_password: "{{ mysql_root_password }}"
+        priv: "*.*:ALL,GRANT"

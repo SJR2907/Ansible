@@ -1,0 +1,25 @@
+---
+- name: Backup Directory
+  hosts: all
+  become: yes
+  tasks:
+  - name: Create backup directory
+    file:
+      path: "/backup"
+      state: directory
+  - name: Copy files to backup directory
+    copy:
+      src: "/home/ansible/herbalife.yml"
+      dest: "/backup/"
+      remote_src: yes
+      owner: ansible
+      group: ansible
+      mode: '0644'
+  - name: Verify backup
+    stat:
+      path: "/backup/herbalife.yml"
+    register: backup_status
+  - name: Display backup status
+    debug:
+      msg: "backup created successfully"
+    when: backup_status.stat.exists

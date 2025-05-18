@@ -1,0 +1,25 @@
+---
+- name: Update IP address for a host in /etc/hosts
+  hosts: all
+  become: true
+
+  vars:
+    old_ip: "192.168.0.104"
+    new_ip: "192.168.163.155"
+    hostname_to_update: "server.redhat.com server"
+
+  tasks:
+
+    - name: Backup existing /etc/hosts file
+      copy:
+        src: /etc/hosts
+        dest: /etc/hosts.bak
+        remote_src: yes
+
+    - name: Replace old IP with new IP for specific hostname
+      lineinfile:
+        path: /etc/hosts
+        regexp: '^{{ old_ip }}\s +{{ hostname_to_update }}$'
+        line: "{{ new_ip }}  {{ hostname_to_update }}"
+        state: present
+        backrefs: yes

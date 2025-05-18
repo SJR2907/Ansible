@@ -1,0 +1,10 @@
+---
+- name: Create user on all servers
+  hosts: webservers 
+  become: true 
+  tasks: 
+    - name: Create ramya user 
+      user: 
+        name: ramya 
+        state: present 
+        shell: /bin/bash 
